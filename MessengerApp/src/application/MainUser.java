@@ -38,19 +38,21 @@ import javafx.scene.text.Text;
 
 /**
  * This is the GUI for the Messenger Client area  
+ * Have removed password capabilities for now
  * 
  * @author BaraMeyMey
  *
  */
 public class MainUser extends Application {
 	
-	//Added for now 
+	//Area to add the messages along with viewing them 
 	ObservableList<String> messageList = FXCollections.observableArrayList();
 	ListView<String> messageListView = new ListView<String>();
 	ServerSocket serverSocket;
 	
+	//To provide a list of available users to be connected 
 	ListView<String> userListView = new ListView<String>();
-	private ObservableList<String> userList = FXCollections.observableArrayList();
+	ObservableList<String> userList = FXCollections.observableArrayList();
 	String username;
 	
 	DataOutputStream output = null;
@@ -74,8 +76,8 @@ public class MainUser extends Application {
 			TextField portInput = new TextField ();
 			Text usernameText = new Text("Username: ");
 			TextField usernameInput = new TextField ();
-			Text passwordText = new Text("Password: ");
-			PasswordField passwordInput = new PasswordField ();
+//			Text passwordText = new Text("Password: ");
+//			PasswordField passwordInput = new PasswordField ();
 			
 			Button connectButton = new Button ("Connect to Server");
 			
@@ -86,7 +88,9 @@ public class MainUser extends Application {
 		//Organizing all the left side buttons:
 			VBox leftPane = new VBox (ipText, portNumberText, ipAddressText, 
 					ipAddressInput, portText, portInput, usernameText, 
-					usernameInput, passwordText, passwordInput, connectButton,
+					usernameInput, 
+//					passwordText, passwordInput, 
+					connectButton,
 					userText, userListView);
 			
 			leftPane.setBackground(new Background(new BackgroundFill(Color.LIGHTPINK, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -124,11 +128,8 @@ public class MainUser extends Application {
 					//Output Stream to server
 					output = new DataOutputStream (clientSocket.getOutputStream());
 					
-					
-					output.writeUTF(username + " has entered the chat");
-					
-					
-					messageList.add(username + " has entered the chat");
+							
+			//		messageList.add(username + " has entered the chat");
 					
 					System.out.println (username + " has entered the chat");
 					
@@ -136,14 +137,9 @@ public class MainUser extends Application {
 					ServerConnection connection = new ServerConnection(clientSocket, this, username);
 					Thread thread = new Thread (connection);
 					thread.start();
-					
-					
-					
-					
-					
-					
+								
 				//	clientSocket.close();  //Just added this now 
-					
+
 				} catch (IOException e) {
 					messageList.add("Unable to connect with server");
 					e.printStackTrace();
@@ -162,6 +158,7 @@ public class MainUser extends Application {
 					}
 					
 			//Encrypt here
+					
 					//Send message to server
 					output.writeUTF(username + ": " + message);
 					output.flush();

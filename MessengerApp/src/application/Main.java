@@ -39,32 +39,20 @@ import javafx.scene.text.Text;
  *
  */
 public class Main extends Application {
-	//Not used yet: 
-	final ObservableList<Client> ipAddressList = FXCollections.observableArrayList();
-	
-	//List of connected clients: this is not used yet
-	final ObservableList<Client> clientList = FXCollections.observableArrayList();
-	ListView<Client> clientListView = new ListView<Client>();
 	
 	//List of connected clients: currently used
 	final ObservableList<ClientConnection> connectionList = FXCollections.observableArrayList();
-	
+	ListView<ClientConnection> connectionListView = new ListView<ClientConnection>();
 	
 	//Message area on GUI
 	ObservableList<String> messageList = FXCollections.observableArrayList();
 	ListView<String> messageListView = new ListView<String>();
 	ServerSocket serverSocket;
 	
-	//User list area on the GUI
-	ListView<String> userListView = new ListView<String>();
-	private ObservableList<String> userList = FXCollections.observableArrayList();
-	
-	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
 			messageList.add("Hi there");
-			userList.add("Bazza");
 			
 		//Left side text and buttons
 			BorderPane root = new BorderPane();
@@ -82,12 +70,12 @@ public class Main extends Application {
 			Text space = new Text (" ");
 			HBox serverControls = new HBox (startButton, space, stopButton);
 			Text userText = new Text("\n Users:");
-			userListView.setItems(userList);
+			connectionListView.setItems(connectionList);
 			
 			
 		//Organizing all the left side buttons:
 			VBox leftPane = new VBox (ipText, portNumberText, portText, portInput, serverControlsText, 
-					serverControls, userText, userListView);
+					serverControls, userText, connectionListView);
 			
 			
 			leftPane.setBackground(new Background(new BackgroundFill(Color.LIGHTBLUE, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -102,7 +90,7 @@ public class Main extends Application {
 			
 			
 		//Setup of buttons: 
-			//Start button: General code from class example
+			//Start button: Starts the server using a thread
 			startButton.setOnAction(value -> {
 				
 				int port = Integer.valueOf(portInput.getText());
@@ -122,7 +110,8 @@ public class Main extends Application {
 			    		try {
 			    			serverSocket = new ServerSocket(port);
 			    			portNumberText.setText("Port Number: " + port + "\n");
-			    			System.out.println("Server started on port " + port);
+			    			System.out.println("Server started on port " + port + 
+	    							" at " + new Date());
 			    			//runLater used as errors are thrown as the 
 			    			//UI is being updated in other thread than JavaFX application
 			    			Platform.runLater(()
@@ -131,16 +120,20 @@ public class Main extends Application {
 			    			
 			    			
 			    		//This will be used to create new connections to the server: forever open			    			
-			    			try {
+			    	//		try {
 			    				while (true) {
 			    					//Listening to a new client request
 			    					//Then add to list 
 			    					Socket clientSocket = serverSocket.accept();
 			    					
-			    					new ServerThread(clientSocket).start(); //for simple message to client
 			    					ClientConnection connection = new ClientConnection (clientSocket, this);
 			    					connectionList.add(connection); //add to list
 			    					System.out.println(connection);
+			    					
+			    					for (int i = 0; i < connectionList.size(); i++) {
+			    						System.out.println("Testing: " + connectionList.get(i));
+			    					}
+			    					
 			    					
 			    					//New Thread
 			    					Thread thread = new Thread (connection);
@@ -148,11 +141,11 @@ public class Main extends Application {
 			    					
 			    					
 			    				}
-			    			}
-			    			finally {
+			    	//		}
+			    	//		finally {
 			    				
 			    			//	serverSocket.close();
-			    			}
+			    	//		}
 			    			
 			    			
 			    		} catch (Exception e) {
@@ -164,7 +157,7 @@ public class Main extends Application {
 				
 			});
 			
-			//Stop button: 
+			//Stop button: Stops the server from running 
 			stopButton.setOnAction(value -> {
 				stopButton.setVisible(false);
 				startButton.setVisible(true);
@@ -189,7 +182,7 @@ public class Main extends Application {
 			
 			
 			
-			
+		//GUI Server setup:
 			primaryStage.setTitle("Server GUI");
 			Scene scene = new Scene(root,700,400);
 			primaryStage.setScene(scene);
@@ -205,8 +198,7 @@ public class Main extends Application {
 	}
 	
 	
-	//This has been copied from source for now:
-    //send message to all connected clients
+    //This is to send message to all clients 
     public void broadcast(String message) {
         for (ClientConnection clientConnection : this.connectionList) {
             clientConnection.sendMessage(message);

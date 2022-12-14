@@ -24,7 +24,8 @@ public class ServerConnection implements Runnable {
     }
 
     @Override 
-    public void run() {    	
+    public void run() {    
+    	
     	
         //continuously loop it
         while (true) {
@@ -33,7 +34,7 @@ public class ServerConnection implements Runnable {
             	//This is to send the username to the server
             	//to add to ClientConnection class
             	if (!usernameSent) {
-            		client.output.writeUTF(username);
+            		client.output.writeUTF(username + "     ");
             		usernameSent = true;
             	}
             	
@@ -41,14 +42,26 @@ public class ServerConnection implements Runnable {
                 //Create data input stream
                 input = new DataInputStream(socket.getInputStream());
 
-                //get input from the client
-                String message = input.readUTF();
 
-                //append message of the Text Area of UI (GUI Thread)
-                Platform.runLater(() -> {
-                    //display the message in the textarea
-                    client.messageList.add(message + "\n");
-                });
+                //get input from the server
+                String message = input.readUTF();
+                
+          //Decipher here
+                
+                
+                
+                
+                if (message.contains("     ")) {
+                	client.userList.add(message);
+                } else {
+
+                    //append message of the Text Area of UI (GUI Thread)
+                    Platform.runLater(() -> {
+                        //display the message in the textarea
+                        client.messageList.add(message + "\n");
+                    }); 
+                }
+             
             } catch (IOException ex) {
                 System.out.println("Error reading from server: " + ex.getMessage());
                 ex.printStackTrace();

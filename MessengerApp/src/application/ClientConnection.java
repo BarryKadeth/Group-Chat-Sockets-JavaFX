@@ -30,11 +30,9 @@ public  class ClientConnection implements Runnable {
     public void run() {
 
         try { 
-            // Create data input and output streams
-            input = new DataInputStream(
-                    socket.getInputStream());
-            output = new DataOutputStream(
-                    socket.getOutputStream());
+            // Create input and output streams
+            input = new DataInputStream(socket.getInputStream());
+            output = new DataOutputStream(socket.getOutputStream());
             
             //The very first input from the client is the username
             //To add the password later
@@ -42,36 +40,41 @@ public  class ClientConnection implements Runnable {
             if (!usernameReceived) {
             	username = userDetails;
             	usernameReceived = true;
+            	for (int i = 0; i < server.connectionList.size(); i++) {
+            		output.writeUTF(server.connectionList.get(i).toString());
+            	}
+            	
             }
 
             
             //This is for sending messages portion
             while (true) {
-                // Get message from the client
+                //Receive and send client messages
                 String message = input.readUTF();
-
-                //send message via server broadcast
+                
+          //Decipher the message here
+                
                 server.broadcast(message);
                 
                 System.out.println("ClientConnections: " + username);
                 
                 //append message of the Text Area of UI (GUI Thread)
                 Platform.runLater(() -> {                    
-                    server.messageList.add(message + "\n");
+                    server.messageList.add(message);
                 });
                 
             }
             
-            
-
+       
         } catch (IOException ex) {
             ex.printStackTrace();
         } finally {
-            try {
-                socket.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+//            try {
+//                socket.close();
+//            } 
+//            catch (IOException ex) {
+//                ex.printStackTrace();
+//            }
 
         }
 
@@ -81,7 +84,7 @@ public  class ClientConnection implements Runnable {
     public void sendMessage(String message) {
           try {
         	  
-        	//This portion will need to be encrypted when sent back 
+    //This portion will need to be encrypted when sent back 
         	  
             output.writeUTF(message);
             output.flush();
@@ -94,7 +97,11 @@ public  class ClientConnection implements Runnable {
     
     @Override
     public String toString () {
-    	return (socket + " " + server + input + output);
+    	return (username);
+    }
+    
+    public void setUsername (String username) {
+    	this.username = username;
     }
 
 }
