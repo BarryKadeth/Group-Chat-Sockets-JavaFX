@@ -15,6 +15,7 @@ public class ServerConnection implements Runnable {
     DataInputStream input;
     String username;
     boolean usernameSent = false;
+    boolean firstLogin = true;
 
     //constructor
     public ServerConnection (Socket socket, MainUser client, String username) {
@@ -34,8 +35,9 @@ public class ServerConnection implements Runnable {
             	//This is to send the username to the server
             	//to add to ClientConnection class
             	if (!usernameSent) {
-            		client.output.writeUTF(username + "     ");
+            		client.output.writeUTF("     " + username);
             		usernameSent = true;
+            		client.output.writeUTF("     " + username); // added trial
             	}
             	
             	
@@ -48,16 +50,25 @@ public class ServerConnection implements Runnable {
                 
           //Decipher here
                 
-                
-                
-                
-                if (message.contains("     ")) {
-                	client.userList.add(message);
+                //5 spaces is a key that the message is a user name
+                if (message.contains("     ") && message.contains(username) &&
+                		firstLogin) {
+                	//Do nothing
+                	firstLogin = false;
+                } else if (message.contains("     ")) {
+                	
+                    Platform.runLater(() -> {                    
+                    	client.userList.add(message);
+                    	client.messageList.add(message + " is here");
+                    });
+
+                	
+                	
                 } else {
 
                     //append message of the Text Area of UI (GUI Thread)
                     Platform.runLater(() -> {
-                        //display the message in the textarea
+                        //display the message in the text area
                         client.messageList.add(message + "\n");
                     }); 
                 }

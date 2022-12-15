@@ -40,8 +40,12 @@ public  class ClientConnection implements Runnable {
             if (!usernameReceived) {
             	username = userDetails;
             	usernameReceived = true;
+            	//Send message to everyone already connected that this user has connected
+            	//pseudocode
+            	
             	for (int i = 0; i < server.connectionList.size(); i++) {
             		output.writeUTF(server.connectionList.get(i).toString());
+            		
             	}
             	
             }
@@ -57,6 +61,7 @@ public  class ClientConnection implements Runnable {
                 server.broadcast(message);
                 
                 System.out.println("ClientConnections: " + username);
+                
                 
                 //append message of the Text Area of UI (GUI Thread)
                 Platform.runLater(() -> {                    

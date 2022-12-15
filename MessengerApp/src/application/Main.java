@@ -127,7 +127,12 @@ public class Main extends Application {
 			    					Socket clientSocket = serverSocket.accept();
 			    					
 			    					ClientConnection connection = new ClientConnection (clientSocket, this);
-			    					connectionList.add(connection); //add to list
+			    					
+			    					
+			                        Platform.runLater(() -> {                    
+			                        	connectionList.add(connection); //add to list
+			                        });
+			    					
 			    					System.out.println(connection);
 			    					
 			    					for (int i = 0; i < connectionList.size(); i++) {

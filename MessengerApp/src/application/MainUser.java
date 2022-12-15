@@ -62,7 +62,7 @@ public class MainUser extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			messageList.add("Hi there");
-			userList.add("Trial run user");
+			userList.add("Group chat");
 			
 		//Left side text and buttons
 			BorderPane root = new BorderPane();
@@ -151,7 +151,10 @@ public class MainUser extends Application {
 			sendButton.setOnAction(value -> {
 				
 				try {
-					String message = inputMessage.getText().trim();
+					//Attach Username to beginning of message and receive from textInput
+					String message = username + ": " + inputMessage.getText().trim();
+					
+					
 					//If message is empty, don't send
 					if (message.length() == 0) {
 						return;
@@ -160,7 +163,7 @@ public class MainUser extends Application {
 			//Encrypt here
 					
 					//Send message to server
-					output.writeUTF(username + ": " + message);
+					output.writeUTF(message);
 					output.flush();
 					
 					//Clear input for next message
