@@ -3,6 +3,10 @@ package application;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 import javafx.application.Platform;
 
 /**
@@ -16,6 +20,10 @@ public class ServerConnection implements Runnable {
     String username;
     boolean usernameSent = false;
     boolean firstLogin = true;
+    
+	//Key for encryption and decryption
+	private String password = "Bar12345Bar12345";
+    private SecretKey key = new SecretKeySpec(password.getBytes(), "AES");
 
     //constructor
     public ServerConnection (Socket socket, MainUser client, String username) {
@@ -35,9 +43,14 @@ public class ServerConnection implements Runnable {
             	//This is to send the username to the server
             	//to add to ClientConnection class
             	if (!usernameSent) {
-            		client.output.writeUTF("     " + username);
+            		String message = "     " + username;
+            		
+            	//Send an encrypted username
+            		Encryption encrypter = new Encryption(key);
+            		String encryptedMessage = encrypter.encrypt(message);
+            		client.output.writeUTF(encryptedMessage);
+            		client.output.writeUTF(encryptedMessage); // sent twice
             		usernameSent = true;
-            		client.output.writeUTF("     " + username); // added trial
             	}
             	
             	
@@ -50,16 +63,22 @@ public class ServerConnection implements Runnable {
                 
           //Decipher here
                 
+                Encryption encrypter = new Encryption(key);
+                String decryptedMessage = encrypter.decrypt(message);
+                
+                
+                
+                
                 //5 spaces is a key that the message is a user name
-                if (message.contains("     ") && message.contains(username) &&
+                if (decryptedMessage.contains("     ") && decryptedMessage.contains(username) &&
                 		firstLogin) {
                 	//Do nothing
                 	firstLogin = false;
-                } else if (message.contains("     ")) {
+                } else if (decryptedMessage.contains("     ")) {
                 	
                     Platform.runLater(() -> {                    
-                    	client.userList.add(message);
-                    	client.messageList.add(message + " is here");
+                    	client.userList.add(decryptedMessage);
+                    	client.messageList.add(decryptedMessage + " is here");
                     });
 
                 	
@@ -69,11 +88,11 @@ public class ServerConnection implements Runnable {
                     //append message of the Text Area of UI (GUI Thread)
                     Platform.runLater(() -> {
                         //display the message in the text area
-                        client.messageList.add(message + "\n");
+                        client.messageList.add(decryptedMessage + "\n");
                     }); 
                 }
              
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 System.out.println("Error reading from server: " + ex.getMessage());
                 ex.printStackTrace();
                 break;

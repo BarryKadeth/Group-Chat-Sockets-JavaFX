@@ -5,7 +5,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Date;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -56,6 +61,10 @@ public class MainUser extends Application {
 	String username;
 	
 	DataOutputStream output = null;
+	
+	//Key for encryption and decryption
+	private String password = "Bar12345Bar12345";
+    private SecretKey key = new SecretKeySpec(password.getBytes(), "AES");
 	
 	
 	@Override
@@ -160,16 +169,20 @@ public class MainUser extends Application {
 						return;
 					}
 					
-			//Encrypt here
+	//Encrypt here
 					
-					//Send message to server
-					output.writeUTF(message);
+					Encryption encrypter = new Encryption(key);
+					String encryptedMessage = encrypter.encrypt(message);
+					System.out.println(encryptedMessage);
+					
+					//Send encrypted message to server
+					output.writeUTF(encryptedMessage);
 					output.flush();
 					
 					//Clear input for next message
 					inputMessage.clear();
 					
-				} catch (IOException e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 					System.out.println(e);
 				}

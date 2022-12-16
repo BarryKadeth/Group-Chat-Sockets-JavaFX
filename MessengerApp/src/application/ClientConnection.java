@@ -4,6 +4,11 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Date;
+
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+
 import javafx.application.Platform;
 
 /**
@@ -17,8 +22,12 @@ public  class ClientConnection implements Runnable {
     // Create data input and output streams
     DataInputStream input;
     DataOutputStream output;
-    String username = "unknown";
+    String username = "";
     boolean usernameReceived = false;
+    
+	//Key for encryption and decryption
+	private String password = "Bar12345Bar12345";
+    private SecretKey key = new SecretKeySpec(password.getBytes(), "AES");
     
 
     public ClientConnection(Socket socket, Main server) {
@@ -37,14 +46,31 @@ public  class ClientConnection implements Runnable {
             //The very first input from the client is the username
             //To add the password later
             String userDetails = input.readUTF();
+            
+     //Need to decipher here 
+            
+            Encryption encrypter = new Encryption(key);
+            String decryptedMessage = encrypter.decrypt(userDetails);
+            
+            
             if (!usernameReceived) {
-            	username = userDetails;
+            	
+                Platform.runLater(() -> {     
+                	
+                	username = decryptedMessage;
+                });
+            	
+            	
             	usernameReceived = true;
             	//Send message to everyone already connected that this user has connected
-            	//pseudocode
             	
             	for (int i = 0; i < server.connectionList.size(); i++) {
-            		output.writeUTF(server.connectionList.get(i).toString());
+            		String messageConnections = server.connectionList.get(i).toString();
+            		Encryption connectionsEncrypter = new Encryption(key);
+                    String encryptedMessageConnections = connectionsEncrypter.encrypt(messageConnections);
+            		
+            		
+            		output.writeUTF(encryptedMessageConnections);
             		
             	}
             	
@@ -58,6 +84,19 @@ public  class ClientConnection implements Runnable {
                 
           //Decipher the message here
                 
+                
+                Encryption messageDecrypter = new Encryption(key);
+                String decryptedMessage1 = messageDecrypter.decrypt(message);
+                
+                System.out.println(decryptedMessage1);
+                
+                //save to database
+                DatabaseManager.addMessage(new Date().toString(), 
+                		username, "everyone", decryptedMessage1);
+                
+                
+                
+              //Send the message back to everyone: the encrypted form 
                 server.broadcast(message);
                 
                 System.out.println("ClientConnections: " + username);
@@ -65,13 +104,13 @@ public  class ClientConnection implements Runnable {
                 
                 //append message of the Text Area of UI (GUI Thread)
                 Platform.runLater(() -> {                    
-                    server.messageList.add(message);
+                    server.messageList.add(decryptedMessage1);
                 });
                 
             }
             
        
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
 //            try {

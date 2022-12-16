@@ -56,6 +56,11 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/Users/BaraMeyMey/Downloads/commons-codec-1.9.jar">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="/Users/BaraMeyMey/Documents/JavaFXSocketProgramming/dist/JavaFXSocketProgramming.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
