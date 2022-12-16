@@ -68,8 +68,9 @@ public class DatabaseManager {
 
 	}
 	
-	public static void checkLogin (String username, String password) {
+	public static boolean checkLogin (String username, String password) {
 		boolean correctLogin = false; 
+		String presentUsername = null;
 		
 		try {
 			
@@ -90,8 +91,10 @@ public class DatabaseManager {
 			ResultSet rs = s.executeQuery(sql);
 			
 			while (rs.next()) {
-				System.out.println(rs.getString("username"));
-				System.out.println(rs.getString("password"));
+				presentUsername = rs.getString("username");
+				System.out.println("Username: " + presentUsername);		
+			//	System.out.println(rs.getString("password"));
+				
 			}
 			rs.close();
 
@@ -101,6 +104,10 @@ public class DatabaseManager {
 			e.printStackTrace();
 			System.out.println("Login error: " + e.toString());
 		}
+		if (presentUsername != null) {
+			correctLogin = true;
+		}
+		return correctLogin;
 
 	}
 	
@@ -109,7 +116,12 @@ public class DatabaseManager {
 	public static void main(String[] args) {
 	//	mySQLJDBC ();
 	//	addMessage (new Date().toString() , "Barry", "Andy", "Hi Andy, my name is Barry");
-		checkLogin ("Barry", "1234");
+	//	checkLogin ("Barry", "1234");
+		if (checkLogin ("Barry", "1234")) {
+			System.out.println("User details are correct");
+		} else {
+			System.out.println("User is not present");
+		}
 	}
 
 }
