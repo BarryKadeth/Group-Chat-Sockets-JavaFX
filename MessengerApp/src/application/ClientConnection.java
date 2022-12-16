@@ -46,34 +46,25 @@ public  class ClientConnection implements Runnable {
             //The very first input from the client is the username
             //To add the password later
             String userDetails = input.readUTF();
-            
-     //Need to decipher here 
-            
+  
+            //Need to decipher here 
             Encryption encrypter = new Encryption(key);
             String decryptedMessage = encrypter.decrypt(userDetails);
             
             
             if (!usernameReceived) {
-            	
-                Platform.runLater(() -> {     
-                	
+                Platform.runLater(() -> {                  	
                 	username = decryptedMessage;
                 });
-            	
-            	
             	usernameReceived = true;
             	//Send message to everyone already connected that this user has connected
-            	
-            	for (int i = 0; i < server.connectionList.size(); i++) {
-            		String messageConnections = server.connectionList.get(i).toString();
-            		Encryption connectionsEncrypter = new Encryption(key);
-                    String encryptedMessageConnections = connectionsEncrypter.encrypt(messageConnections);
-            		
-            		
-            		output.writeUTF(encryptedMessageConnections);
-            		
-            	}
-            	
+            for (int i = 0; i < server.connectionList.size(); i++) {
+            	String messageConnections = server.connectionList.get(i).toString();
+            	//Encrypt the message
+            	Encryption connectionsEncrypter = new Encryption(key);
+                String encryptedMessageConnections = connectionsEncrypter.encrypt(messageConnections);
+            	output.writeUTF(encryptedMessageConnections);
+            	}           	
             }
 
             
@@ -83,22 +74,16 @@ public  class ClientConnection implements Runnable {
                 String message = input.readUTF();
                 
           //Decipher the message here
-                
-                
                 Encryption messageDecrypter = new Encryption(key);
                 String decryptedMessage1 = messageDecrypter.decrypt(message);
-                
                 System.out.println(decryptedMessage1);
                 
                 //save to database
                 DatabaseManager.addMessage(new Date().toString(), 
                 		username, "everyone", decryptedMessage1);
-                
-                
-                
+
               //Send the message back to everyone: the encrypted form 
                 server.broadcast(message);
-                
                 System.out.println("ClientConnections: " + username);
                 
                 
