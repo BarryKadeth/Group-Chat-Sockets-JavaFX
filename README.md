@@ -29,6 +29,8 @@ Database design:
 The messages database was stored on the cloud-based Azure Database for MySQL
 flexible server. This was then connected to MySQL Workbench. The design of the
 table fields and a sample of the table data are as follows:
+<img width="538" alt="Screenshot 2022-12-17 at 5 24 04 PM" src="https://user-images.githubusercontent.com/86271636/212235948-c02751e0-1903-413f-83c3-72275e27e367.png">
+
 Another database for usernames and passwords were designed, but this was not
 used in the final design.
 
@@ -48,6 +50,8 @@ Messages are encrypted using Caesar cipher: Messages encrypted using AES
 A GUI was created with HCI values in mind and a pink and blue coloured interface
 denoting the difference between Server and Client. The messages in the server side
 are still encrypted when displayed on the GUI to show the differences.
+
+<img width="1405" alt="Screenshot 2022-12-17 at 4 55 02 PM" src="https://user-images.githubusercontent.com/86271636/212235991-95cd889f-19e6-40de-a12c-bf823672647b.png">
 
 Functionality: A Level
 Clients can exchange messages while the server keeps track of the messages
